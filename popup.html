@@ -1,0 +1,26 @@
+<!doctype html>
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+
+<head>
+  <title>DivsBeGone</title>
+  <style>
+    body {
+      font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+      font-size: 100%;
+    }
+  </style>
+
+  <script src=""></script>
+</head>
+
+<body>
+  <textarea id="textAreaSearchTerms" rows="4" cols="50" placeholder="Enter search terms seperated by commas"></textarea>
+  <input type="text" id="textInputDivClass" placeholder="Element class name to look through"></input>
+</body>
+
+</html>
