@@ -1,26 +1,18 @@
 <!doctype html>
-<!--
- This page is shown when the extension button is clicked, because the
- "browser_action" field in manifest.json contains the "default_popup" key with
- value "popup.html".
- -->
 <html>
 
 <head>
   <title>DivsBeGone</title>
-  <style>
-    body {
-      font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-      font-size: 100%;
-    }
-  </style>
-  <script type="text/javascript" src="popup.js"></script>
+  <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
 
 <body>
-  <textarea id="textAreaSearchTerms" rows="4" cols="50" placeholder="Enter search terms seperated by commas"></textarea>
-  <input type="text" id="textInputDivClass" placeholder="Element class name containing search terms"></input>
-  <button id="buttonDivsBeGone">Divs Be Gone!</button>
+  <div class="container">
+    <textarea id="textAreaSearchTerms" rows="4" cols="50" placeholder="Enter search terms seperated by commas"></textarea>
+    <input id="textInputDivClass" type="text" placeholder="Element class name containing search terms"></input>
+    <button id="buttonDivsBeGone">Divs Be Gone!</button>
+    <script type="text/javascript" src="popup.js"></script>
+  </div>
 </body>
 
 </html>
