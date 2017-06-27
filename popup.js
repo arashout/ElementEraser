@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 classname: document.getElementById('inputDivClass').value
             }
             chrome.tabs.sendMessage(tabs[0].id, popupDict, function (response) {
-                console.log(response);
             });
 
         }
@@ -23,15 +22,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     chrome.tabs.query(query, sendPopupDict);
 
-    function addListItemFromInput(ul, inputBox){
-            let text = inputBox.value;
-            let li = document.createElement("li");
-            li.classList.add('searchTerm');
+    function addListItemFromInput(ul, inputBox, removeDelimiter = false) {
+        let text = inputBox.value;
+        let li = document.createElement("li");
+        li.classList.add('searchTerm');
+        if (removeDelimiter) {
             li.appendChild(document.createTextNode(text.slice(0, text.length - 1)));
-            ul.appendChild(li);
-            inputBox.value = "";
+
+        }
+        else {
+            li.appendChild(document.createTextNode(text));
+        }
+        ul.appendChild(li);
+        inputBox.value = "";
     }
-    
+
     var ulSearchTerms = document.getElementById('listSearchTerms');
     // Add all event listeners
     var searchTermInputElement = document.getElementById('inputSearchTerm');
@@ -42,8 +47,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     var ENTER_KEY_CODE = 13;
     var TAB_KEY_CODE = 9;
-    searchTermInputElement.addEventListener('keydown', function (e){
-        if(this.value !== "" && (e.keyCode == ENTER_KEY_CODE || e.keyCode == TAB_KEY_CODE)){
+    searchTermInputElement.addEventListener('keydown', function (e) {
+        if (this.value !== "" && (e.keyCode == ENTER_KEY_CODE || e.keyCode == TAB_KEY_CODE)) {
             addListItemFromInput(ulSearchTerms, this);
         }
     });
