@@ -35,7 +35,7 @@ function sendPopupDict(tabs) {
         searchTerms: arrSearchTerms,
         classname: document.getElementById('inputDivClass').value
     }
-    chrome.tabs.sendMessage(tabs[0].id, popupDict, function (response) {});
+    chrome.tabs.sendMessage(tabs[0].id, popupDict, function (response) { });
 }
 
 /**
@@ -52,6 +52,14 @@ function getArrayFromList(elementContainer) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    // Update URL Key
+    var inputURLElement = document.getElementById('inputURLKey');
+    if (typeof location.origin === 'undefined') {
+        location.origin = location.protocol + '//' + location.host;
+    }
+    inputURLElement.value = location.origin;
+
+
     var ulSearchTerms = document.getElementById('listSearchTerms');
 
     // Add searchTerm event listeners

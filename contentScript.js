@@ -16,3 +16,10 @@ function removeDivs(className, searchTerms){
         }
     }
 }
+
+function sendBaseUrl(){
+    if (typeof location.origin === 'undefined') {
+        location.origin = location.protocol + '//' + location.host;
+    }
+    chrome.tabs.sendMessage(tabs[0].id, location.origin, function (response) {});
+}
