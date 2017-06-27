@@ -1,10 +1,10 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
 
-    "name": "DivsBeGone",
+    "name": "Div Eraser",
     "description": "This extension removes divs with a given class name that contain any given search terms",
     "short_name": "Remove unwanted content where-ever you go",
-    "version": "0.0.0.1",
+    "version": "0.0.0.3",
     "author": "Arash Outadi",
 
     "browser_action": {
@@ -15,13 +15,12 @@
 
     "content_scripts": [{
         "matches": ["<all_urls>"],
-        "js": ["contentScript.js"]
+        "js": ["contentScript.js"],
+        "run_at": "document_end"
     }],
 
     "permissions": [
         "tabs",
         "<all_urls>"
-    ],
-
-    "web_accessible_resources": ["main.js"]
+    ]
 }
