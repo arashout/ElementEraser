@@ -12,7 +12,6 @@ function removeDivs(className, searchTerms){
         if (searchTerms.some(function (term) {
                 return stringContent.includes(term);
             })) {
-            console.log(element.textContent);
             element.remove();
         }
     }

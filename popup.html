@@ -3,17 +3,29 @@
 
 <head>
     <title>DivsBeGone</title>
+    <link rel="stylesheet" type="text/css" href="bulma.css">
     <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
 
 <body>
     <div class="container">
-        <input id="inputSearchTerm" type="text" placeholder="Enter search terms seperated by commas"></input>
-        <ul id="listSearchTerms">
-            
+        <div class="field">
+            <label class="label">Search Terms</label>
+            <p class="control">
+                <input id="inputSearchTerm" class="input is-info" type="text"></input>
+            </p>
+        </div>
+
+        <ul id="listSearchTerms" class="box">
         </ul>
-        <input id="inputDivClass" type="text" placeholder="Element class name containing search terms"></input>
-        <button id="buttonDivErase">Erase Divs!</button>
+
+        <div class="field">
+            <label class="label">Element Class Name</label>
+            <p class="control">
+                <input id="inputDivClass" class="input is-primary" type="text"></input>
+            </p>
+        </div>
+        <button id="buttonDivErase" class="button is-primary">Erase Divs!</button>
         <script type="text/javascript" src="popup.js"></script>
     </div>
 </body>
