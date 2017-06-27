@@ -33,6 +33,11 @@ document.addEventListener("DOMContentLoaded", function () {
         else {
             li.appendChild(document.createTextNode(text));
         }
+        // Add event listener to delete on click
+        li.addEventListener("click", function(e){
+            li.parentNode.removeChild(li);
+        });
+
         ul.appendChild(li);
         inputBox.value = "";
     }
