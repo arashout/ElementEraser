@@ -2,7 +2,7 @@
 
 // TODO: Use port instead of one off message?
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    if (message.name === CONSTANTS.MSG_POPUP_DICT) {
+    if (message.name === CONSTANTS.MSG_ERASE_OBJECT) {
         removeDivs(message['classname'], message['searchTerms']);
     }
     else if (message.name === CONSTANTS.MSG_GET_URL) {

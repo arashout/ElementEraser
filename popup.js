@@ -27,15 +27,9 @@ function addSearchItemFromText(ul, text) {
     });
 }
 
-function sendPopupDict(tabs) {
-    var nodeListSearchTerms = document.getElementById("listSearchTerms").getElementsByTagName("li");
-    var arrSearchTerms = getArrayFromList(nodeListSearchTerms);
-
-    let msg = {
-        name: CONSTANTS.MSG_POPUP_DICT,
-        searchTerms: arrSearchTerms,
-        classname: document.getElementById('inputDivClass').value
-    }
+function eraseUsingDict(tabs) {
+    let msg = createEraseObj();
+    msg.name = CONSTANTS.MSG_ERASE_OBJECT;
     chrome.tabs.sendMessage(tabs[0].id, msg, function (response) { });
 }
 
@@ -47,6 +41,8 @@ function updateURLKey(tabs) {
     chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
         var inputURLElement = document.getElementById('inputURLKey');
         inputURLElement.value = response.url;
+
+        retrieveEraseObj(response.url);
     });
 }
 
@@ -89,21 +85,66 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Add submit button event listeners
     var query = {
         active: true,
         currentWindow: true
     };
 
     chrome.tabs.query(query, updateURLKey);
-    chrome.tabs.query(query, sendPopupDict);
+    chrome.tabs.query(query, eraseUsingDict);
+
+    // Add submit button event listeners
     document.getElementById('buttonDivErase').addEventListener('click', function (e) {
-        chrome.tabs.query(query, sendPopupDict);
+        chrome.tabs.query(query, eraseUsingDict);
     });
 
     document.addEventListener('keydown', function (e) {
         if (e.keyCode === ENTER_KEY_CODE) {
-            chrome.tabs.query(query, sendPopupDict);
+            chrome.tabs.query(query, eraseUsingDict);
         }
     });
+
+    document.getElementById('buttonStoreResults').addEventListener('click', function (e) {
+        let currentURLKey = document.getElementById('inputURLKey').value;
+        let currentEraseObj = createEraseObj();
+        storeEraseObj(currentURLKey, currentEraseObj);
+    });
+
 });
+function storeEraseObj(urlKey, eraseObj) {
+    if (urlKey) {
+        let saveObj = {};
+        saveObj[urlKey] = eraseObj;
+        chrome.storage.local.set(saveObj, function () {
+            if (chrome.extension.lastError) {
+                alert('An error occurred: ' + chrome.extension.lastError.message);
+            }
+        });
+    }
+    else return false;
+
+    return true;
+}
+
+function retrieveEraseObj(urlKey) {
+    chrome.storage.local.get(urlKey, function (result) {
+        if(result.classname){
+            prepopulateEraseFields(result);
+        }
+    })
+}
+
+function createEraseObj() {
+    var nodeListSearchTerms = document.getElementById("listSearchTerms").getElementsByTagName("li");
+    var arrSearchTerms = getArrayFromList(nodeListSearchTerms);
+
+    return {
+        searchTerms: arrSearchTerms,
+        classname: document.getElementById('inputDivClass').value
+    }
+}
+
+function prepopulateEraseFields(eraseObj){
+    console.log(eraseObj);
+    document.getElementById('inputDivClass').value = eraseObj.classname;
+}
