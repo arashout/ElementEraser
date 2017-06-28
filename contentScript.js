@@ -31,3 +31,11 @@ function getBaseUrl() {
     }
     return location.origin;
 }
+
+/**
+ * This method finds the top level list item so 
+ * users don't have inspect html to find it themselves 
+ */
+function findTopListItemClassName(){
+    // TODO: Fill this in
+}

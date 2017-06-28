@@ -4,7 +4,7 @@
     "name": "Div Eraser",
     "description": "This extension removes divs with a given class name that contain any given search terms",
     "short_name": "Remove unwanted content where-ever you go",
-    "version": "0.0.0.5",
+    "version": "0.0.0.6",
     "author": "Arash Outadi",
 
     "browser_action": {
