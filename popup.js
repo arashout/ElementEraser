@@ -41,8 +41,7 @@ function updateURLKey(tabs) {
     chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
         var inputURLElement = document.getElementById('inputURLKey');
         inputURLElement.value = response.url;
-
-        retrieveEraseObj(response.url);
+        retrieveEraseObjContainer(response.url);
     });
 }
 
@@ -102,6 +101,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (e.keyCode === ENTER_KEY_CODE) {
             chrome.tabs.query(query, eraseUsingDict);
         }
+        else if(e.keyCode === 82){
+            retrieveEraseObjContainer("https://www.reddit.com");
+        }
     });
 
     document.getElementById('buttonStoreResults').addEventListener('click', function (e) {
@@ -126,12 +128,12 @@ function storeEraseObj(urlKey, eraseObj) {
     return true;
 }
 
-function retrieveEraseObj(urlKey) {
+function retrieveEraseObjContainer(urlKey) {
     chrome.storage.local.get(urlKey, function (result) {
-        if(result.classname){
-            prepopulateEraseFields(result);
-        }
-    })
+        let urlKey = getURLFromInput();
+                let eraseObj = result[urlKey];
+        prepopulateEraseFields(eraseObj);
+    });
 }
 
 function createEraseObj() {
@@ -145,6 +147,14 @@ function createEraseObj() {
 }
 
 function prepopulateEraseFields(eraseObj){
-    console.log(eraseObj);
+    let arrSearchTerms = eraseObj.searchTerms;
+    let ulSearchTerms = document.getElementById('listSearchTerms');
+    for(let i = 0; i < arrSearchTerms.length; i++){
+        addSearchItemFromText(ulSearchTerms, arrSearchTerms[i]);
+    }
     document.getElementById('inputDivClass').value = eraseObj.classname;
+}
+
+function getURLFromInput(){
+    return document.getElementById('inputURLKey').value;
 }
