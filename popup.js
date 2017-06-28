@@ -34,14 +34,14 @@ function addSearchItemFromText(ul, text) {
 
 function eraseUsingDict(tabs) {
     const msg = createEraseObj();
-    msg.name = CONSTANTS.MSG_ERASE_OBJECT;
+    msg.name = MSG.ERASE_OBJECT;
     chrome.tabs.sendMessage(tabs[0].id, msg, function (response) { });
 }
 
 function updateURLKey(tabs) {
     // Ask for url for content script
     const msg = {
-        name: CONSTANTS.MSG_GET_URL
+        name: MSG.GET_URL
     }
     chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
         ELEMENTS.INPUT_URL_KEY.value = response.url;

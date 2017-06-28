@@ -1,7 +1,7 @@
 'use strict';
-const CONSTANTS = {
-    MSG_ERASE_OBJECT : 'MSG_ERASE_OBJECT',
-    MSG_GET_URL : 'MSG_GET_URL'
+const MSG = {
+    ERASE_OBJECT : 'MSG_ERASE_OBJECT',
+    GET_URL : 'MSG_GET_URL'
 }
 
 const ELEMENTS = {
