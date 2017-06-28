@@ -39,8 +39,7 @@ function updateURLKey(tabs) {
         name: CONSTANTS.MSG_GET_URL
     }
     chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
-        var inputURLElement = document.getElementById('inputURLKey');
-        inputURLElement.value = response.url;
+        ELEMENTS.INPUT_URL_KEY.value = response.url;
         retrieveEraseObjContainer(response.url);
     });
 }
