@@ -112,7 +112,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const currentEraseObj = createEraseObj();
             storeEraseObj(currentURLKey, currentEraseObj);
         }
-    })
+    });
+
+    ELEMENTS.BUTTON_RETRIEVE.addEventListener('keydown', function(e){
+        if( e.keyCode === KEY_CODES.ENTER){
+            const result = retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
+            if(!result){
+                // TODO: Give warning tooltip
+                alert('No data stored for this URL');
+            }
+        }
+    });
 });
 function storeEraseObj(urlKey, eraseObj) {
     if (urlKey) {
@@ -131,9 +141,14 @@ function storeEraseObj(urlKey, eraseObj) {
 
 function retrieveEraseObjContainer(urlKey) {
     chrome.storage.local.get(urlKey, function (result) {
+        // TODO: I shouldn't have to do this! Figure out what's going on
         const urlKey = ELEMENTS.INPUT_URL_KEY.value;
         const eraseObj = result[urlKey];
+        if(eraseObj === null){
+            return false;
+        }
         prepopulateEraseFields(eraseObj);
+        return true;
     });
 }
 
