@@ -28,14 +28,14 @@ function addSearchItemFromText(ul, text) {
 }
 
 function eraseUsingDict(tabs) {
-    let msg = createEraseObj();
+    const msg = createEraseObj();
     msg.name = CONSTANTS.MSG_ERASE_OBJECT;
     chrome.tabs.sendMessage(tabs[0].id, msg, function (response) { });
 }
 
 function updateURLKey(tabs) {
     // Ask for url for content script
-    let msg = {
+    const msg = {
         name: CONSTANTS.MSG_GET_URL
     }
     chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
@@ -49,7 +49,7 @@ function updateURLKey(tabs) {
  * Return an array of strings for each <li> item
  */
 function getArrayFromList(elementContainer) {
-    var arrayLi = [];
+    let arrayLi = [];
     for (let i = 0; i < elementContainer.length; i++) {
         let li = elementContainer[i];
         arrayLi.push(li.textContent);
@@ -58,32 +58,27 @@ function getArrayFromList(elementContainer) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    var ulSearchTerms = document.getElementById('listSearchTerms');
-
     // Add searchTerm event listeners
-    var searchTermInputElement = document.getElementById('inputSearchTerm');
-    searchTermInputElement.addEventListener('input', function (e) {
+    ELEMENTS.INPUT_SEARCH_TERM.addEventListener('input', function (e) {
         let text = this.value;
         if (text.endsWith(',')) {
             text = text.replace(/,/g, '');
             if (text.length !== 0) {
-                addSearchItemFromText(ulSearchTerms, text);
+                addSearchItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, text);
                 this.value = '';
             } else this.value = '';
 
         }
     });
 
-    var ENTER_KEY_CODE = 13;
-    var TAB_KEY_CODE = 9;
-    searchTermInputElement.addEventListener('keydown', function (e) {
-        if (this.value !== '' && e.keyCode == TAB_KEY_CODE) {
-            addSearchItemFromText(ulSearchTerms, this.value);
+    ELEMENTS.INPUT_SEARCH_TERM.addEventListener('keydown', function (e) {
+        if (this.value !== '' && e.keyCode == KEY_CODES.TAB) {
+            addSearchItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, this.value);
             this.value = '';
         }
     });
 
-    var query = {
+    let query = {
         active: true,
         currentWindow: true
     };
@@ -92,12 +87,12 @@ document.addEventListener("DOMContentLoaded", function () {
     chrome.tabs.query(query, eraseUsingDict);
 
     // Add submit button event listeners
-    document.getElementById('buttonDivErase').addEventListener('click', function (e) {
+    ELEMENTS.BUTTON_ERASE.addEventListener('click', function (e) {
         chrome.tabs.query(query, eraseUsingDict);
     });
 
     document.addEventListener('keydown', function (e) {
-        if (e.keyCode === ENTER_KEY_CODE) {
+        if (e.keyCode === KEY_CODES.ENTER) {
             chrome.tabs.query(query, eraseUsingDict);
         }
         else if(e.keyCode === 82){
@@ -105,8 +100,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    document.getElementById('buttonStoreResults').addEventListener('click', function (e) {
-        let currentURLKey = document.getElementById('inputURLKey').value;
+    ELEMENTS.BUTTON_STORE.addEventListener('click', function (e) {
+        let currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
         let currentEraseObj = createEraseObj();
         storeEraseObj(currentURLKey, currentEraseObj);
     });
@@ -129,31 +124,26 @@ function storeEraseObj(urlKey, eraseObj) {
 
 function retrieveEraseObjContainer(urlKey) {
     chrome.storage.local.get(urlKey, function (result) {
-        let urlKey = getURLFromInput();
-                let eraseObj = result[urlKey];
+        const urlKey = ELEMENTS.INPUT_URL_KEY.value;
+        const eraseObj = result[urlKey];
         prepopulateEraseFields(eraseObj);
     });
 }
 
 function createEraseObj() {
-    var nodeListSearchTerms = document.getElementById("listSearchTerms").getElementsByTagName("li");
-    var arrSearchTerms = getArrayFromList(nodeListSearchTerms);
+    const nodeListSearchTerms = ELEMENTS.UNORDERED_LIST_SEARCH_TERMS.getElementsByTagName("li");
+    const arrSearchTerms = getArrayFromList(nodeListSearchTerms);
 
     return {
         searchTerms: arrSearchTerms,
-        classname: document.getElementById('inputDivClass').value
+        classname: ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value
     }
 }
 
 function prepopulateEraseFields(eraseObj){
-    let arrSearchTerms = eraseObj.searchTerms;
-    let ulSearchTerms = document.getElementById('listSearchTerms');
+    const arrSearchTerms = eraseObj.searchTerms;
     for(let i = 0; i < arrSearchTerms.length; i++){
-        addSearchItemFromText(ulSearchTerms, arrSearchTerms[i]);
+        addSearchItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, arrSearchTerms[i]);
     }
     document.getElementById('inputDivClass').value = eraseObj.classname;
-}
-
-function getURLFromInput(){
-    return document.getElementById('inputURLKey').value;
 }
