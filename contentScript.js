@@ -6,7 +6,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         removeDivs(message['classname'], message['searchTerms']);
     }
     else if (message.name === CONSTANTS.MSG_GET_URL) {
-        sendResponse.url = getBaseUrl();
+        sendResponse({
+            url : getBaseUrl()
+        });
     }
 
 });
