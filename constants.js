@@ -9,8 +9,9 @@ const ELEMENTS = {
     INPUT_SEARCH_TERM : document.getElementById('inputSearchTerm'),
     INPUT_CONTAINER_CLASS_NAME : document.getElementById('inputClassName'),
     INPUT_URL_KEY : document.getElementById('inputURLKey'),
-    BUTTON_ERASE : document.getElementById('buttonDivErase'),
-    BUTTON_STORE : document.getElementById('buttonStoreResults')
+    BUTTON_ERASE : document.getElementById('buttonErase'),
+    BUTTON_STORE : document.getElementById('buttonStoreData'),
+    BUTTON_RETRIEVE : document.getElementById('buttonRetrieveData')
 }
 
 const KEY_CODES = {
