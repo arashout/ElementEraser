@@ -1,6 +1,11 @@
 'use strict';
 
 function addSearchItemFromText(ul, text) {
+    // First check if term already exists in UL
+    if (ul.outerText.split('\n').includes(text)){
+        return;
+    }
+
     let li = document.createElement('li');
     li.classList.add('searchTerm');
     li.classList.add('block');
@@ -147,5 +152,5 @@ function prepopulateEraseFields(eraseObj) {
     for (let i = 0; i < arrSearchTerms.length; i++) {
         addSearchItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, arrSearchTerms[i]);
     }
-    document.getElementById('inputDivClass').value = eraseObj.classname;
+    ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = eraseObj.classname;
 }
