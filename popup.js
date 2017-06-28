@@ -31,11 +31,23 @@ function sendPopupDict(tabs) {
     var nodeListSearchTerms = document.getElementById("listSearchTerms").getElementsByTagName("li");
     var arrSearchTerms = getArrayFromList(nodeListSearchTerms);
 
-    var popupDict = {
+    let msg = {
+        name: CONSTANTS.MSG_POPUP_DICT,
         searchTerms: arrSearchTerms,
         classname: document.getElementById('inputDivClass').value
     }
-    chrome.tabs.sendMessage(tabs[0].id, popupDict, function (response) { });
+    chrome.tabs.sendMessage(tabs[0].id, msg, function (response) { });
+}
+
+function updateURLKey(tabs) {
+    // Ask for url for content script
+    let msg = {
+        name: CONSTANTS.MSG_GET_URL
+    }
+    chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
+        var inputURLElement = document.getElementById('inputURLKey');
+        inputURLElement.value = response.url;
+    });
 }
 
 /**
@@ -52,14 +64,6 @@ function getArrayFromList(elementContainer) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Update URL Key
-    var inputURLElement = document.getElementById('inputURLKey');
-    if (typeof location.origin === 'undefined') {
-        location.origin = location.protocol + '//' + location.host;
-    }
-    inputURLElement.value = location.origin;
-
-
     var ulSearchTerms = document.getElementById('listSearchTerms');
 
     // Add searchTerm event listeners
@@ -90,6 +94,9 @@ document.addEventListener("DOMContentLoaded", function () {
         active: true,
         currentWindow: true
     };
+
+    chrome.tabs.query(query, updateURLKey);
+    chrome.tabs.query(query, sendPopupDict);
     document.getElementById('buttonDivErase').addEventListener('click', function (e) {
         chrome.tabs.query(query, sendPopupDict);
     });
