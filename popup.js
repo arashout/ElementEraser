@@ -72,7 +72,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     ELEMENTS.INPUT_SEARCH_TERM.addEventListener('keydown', function (e) {
-        if (this.value !== '' && e.keyCode == KEY_CODES.TAB) {
+        if (this.value !== '' &&
+            (e.keyCode === KEY_CODES.TAB || e.keyCode === KEY_CODES.ENTER)) {
             addSearchItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, this.value);
             this.value = '';
         }
@@ -86,26 +87,27 @@ document.addEventListener("DOMContentLoaded", function () {
     chrome.tabs.query(query, updateURLKey);
     chrome.tabs.query(query, eraseUsingDict);
 
-    // Add submit button event listeners
     ELEMENTS.BUTTON_ERASE.addEventListener('click', function (e) {
         chrome.tabs.query(query, eraseUsingDict);
     });
-
-    document.addEventListener('keydown', function (e) {
+    ELEMENTS.BUTTON_ERASE.addEventListener('keydown', function (e) {
         if (e.keyCode === KEY_CODES.ENTER) {
             chrome.tabs.query(query, eraseUsingDict);
         }
-        else if(e.keyCode === 82){
-            retrieveEraseObjContainer("https://www.reddit.com");
-        }
-    });
+    })
 
     ELEMENTS.BUTTON_STORE.addEventListener('click', function (e) {
-        let currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
-        let currentEraseObj = createEraseObj();
+        const currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
+        const currentEraseObj = createEraseObj();
         storeEraseObj(currentURLKey, currentEraseObj);
     });
-
+    ELEMENTS.BUTTON_STORE.addEventListener('keydown', function (e) {
+        if (e.keyCode === KEY_CODES.ENTER) {
+            const currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
+            const currentEraseObj = createEraseObj();
+            storeEraseObj(currentURLKey, currentEraseObj);
+        }
+    })
 });
 function storeEraseObj(urlKey, eraseObj) {
     if (urlKey) {
@@ -140,9 +142,9 @@ function createEraseObj() {
     }
 }
 
-function prepopulateEraseFields(eraseObj){
+function prepopulateEraseFields(eraseObj) {
     const arrSearchTerms = eraseObj.searchTerms;
-    for(let i = 0; i < arrSearchTerms.length; i++){
+    for (let i = 0; i < arrSearchTerms.length; i++) {
         addSearchItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, arrSearchTerms[i]);
     }
     document.getElementById('inputDivClass').value = eraseObj.classname;
