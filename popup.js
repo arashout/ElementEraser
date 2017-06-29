@@ -2,7 +2,7 @@
 
 function addSearchItemFromText(ul, text) {
     // First check if term already exists in UL
-    if (ul.outerText.split('\n').includes(text)){
+    if (ul.outerText.split('\n').includes(text)) {
         return;
     }
 
@@ -44,8 +44,10 @@ function updateURLKey(tabs) {
         name: MSG.GET_URL
     }
     chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
-        ELEMENTS.INPUT_URL_KEY.value = response.url;
-        retrieveEraseObjContainer(response.url);
+        if (response !== undefined) {
+            ELEMENTS.INPUT_URL_KEY.value = response.url;
+            retrieveEraseObjContainer(response.url);
+        }
     });
 }
 
@@ -102,22 +104,29 @@ document.addEventListener("DOMContentLoaded", function () {
     })
 
     ELEMENTS.BUTTON_STORE.addEventListener('click', function (e) {
-        const currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
-        const currentEraseObj = createEraseObj();
+        let currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
+        let currentEraseObj = createEraseObj();
         storeEraseObj(currentURLKey, currentEraseObj);
     });
     ELEMENTS.BUTTON_STORE.addEventListener('keydown', function (e) {
         if (e.keyCode === KEY_CODES.ENTER) {
-            const currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
-            const currentEraseObj = createEraseObj();
+            let currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
+            let currentEraseObj = createEraseObj();
             storeEraseObj(currentURLKey, currentEraseObj);
         }
     });
 
-    ELEMENTS.BUTTON_RETRIEVE.addEventListener('keydown', function(e){
-        if( e.keyCode === KEY_CODES.ENTER){
-            const result = retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
-            if(!result){
+    ELEMENTS.BUTTON_RETRIEVE.addEventListener('click', function (e) {
+        let result = retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
+        if (!result) {
+            // TODO: Give warning tooltip
+            alert('No data stored for this URL');
+        }
+    });
+    ELEMENTS.BUTTON_RETRIEVE.addEventListener('keydown', function (e) {
+        if (e.keyCode === KEY_CODES.ENTER) {
+            let result = retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
+            if (!result) {
                 // TODO: Give warning tooltip
                 alert('No data stored for this URL');
             }
@@ -144,7 +153,7 @@ function retrieveEraseObjContainer(urlKey) {
         // TODO: I shouldn't have to do this! Figure out what's going on
         const urlKey = ELEMENTS.INPUT_URL_KEY.value;
         const eraseObj = result[urlKey];
-        if(eraseObj === null){
+        if (eraseObj === null) {
             return false;
         }
         prepopulateEraseFields(eraseObj);
