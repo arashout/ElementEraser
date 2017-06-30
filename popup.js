@@ -6,82 +6,96 @@ document.addEventListener("DOMContentLoaded", function () {
         currentWindow: true
     };
 
+    function updateURLKey(tabs) {
+        // Ask for url for content script
+        const msg = {
+            name: MSG.GET_URL
+        }
+        chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
+            if (response !== undefined) {
+                ELEMENTS.INPUT_URL_KEY.value = response.url;
+            }
+        });
+    }
     chrome.tabs.query(query, updateURLKey);
 
-    ELEMENTS.INPUT_SEARCH_TERM.addEventListener('input', function (e) {
-        let text = this.value;
-        if (text.endsWith(',')) {
-            text = text.replace(/,/g, '');
-            if (text.length !== 0) {
-                addFilterItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, text);
-                this.value = '';
-            } else this.value = '';
-
+    function inputFilterTermHandler(e) {
+        let inputElement = ELEMENTS.INPUT_FILTER_TERM;
+        let text = inputElement.value;
+        if (text === '') return;
+        if (e.keyCode === KEY_CODES.ENTER || e.keyCode === KEY_CODES.TAB) {
+            addFilterItemFromText(ELEMENTS.UNORDERED_LIST_FILTER_TERMS, text);
+            inputElement.value = '';
         }
-    });
-
-    ELEMENTS.INPUT_SEARCH_TERM.addEventListener('keydown', function (e) {
-        if (this.value !== '' &&
-            (e.keyCode === KEY_CODES.TAB || e.keyCode === KEY_CODES.ENTER)) {
-            addFilterItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, this.value);
-            this.value = '';
-        }
-    });
-    ELEMENTS.BUTTON_ERASE.addEventListener('click', function (e) {
-        chrome.tabs.query(query, eraseUsingDict);
-    });
-    ELEMENTS.BUTTON_ERASE.addEventListener('keydown', function (e) {
-        if (e.keyCode === KEY_CODES.ENTER) {
-            chrome.tabs.query(query, eraseUsingDict);
-        }
-    })
-
-    ELEMENTS.BUTTON_STORE.addEventListener('click', function (e) {
-        let currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
-        let currentEraseObj = createEraseObj();
-        storeEraseObj(currentURLKey, currentEraseObj);
-    });
-    ELEMENTS.BUTTON_STORE.addEventListener('keydown', function (e) {
-        if (e.keyCode === KEY_CODES.ENTER) {
-            let currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
-            let currentEraseObj = createEraseObj();
-            storeEraseObj(currentURLKey, currentEraseObj);
-        }
-    });
-
-    ELEMENTS.BUTTON_RETRIEVE.addEventListener('click', function (e) {
-        retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
-    });
-    ELEMENTS.BUTTON_RETRIEVE.addEventListener('keydown', function (e) {
-        if (e.keyCode === KEY_CODES.ENTER) {
-            retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
-        }
-    });
-
-    function predictHandler(e) {
-        if (e.keyCode === KEY_CODES.ENTER) {
-            const msg = {
-                name: MSG.PREDICT_CLASS
+        else if (e.type === EVENTS.INPUT) {
+            if (text.endsWith(',')) {
+                text = text.replace(/,/g, '');
+                if (text.length !== 0) {
+                    addFilterItemFromText(ELEMENTS.UNORDERED_LIST_FILTER_TERMS, text);
+                    inputElement.value = '';
+                } else inputElement.value = ''; // User enters "," without anything else
             }
-            chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
-                if (response !== undefined) {
-                    ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = response.predictedClass;
-                }
-            });
         }
     }
-    ELEMENTS.BUTTON_PREDICT.addEventListener('click', function (e) {
+    [EVENTS.KEY_DOWN, EVENTS.INPUT].forEach(function (event) {
+        ELEMENTS.INPUT_FILTER_TERM.addEventListener(event, function (e) { inputFilterTermHandler(e) });
+    });
+
+    function eraseUsingDict(tabs) {
+        const msg = createEraseObj();
+        msg.name = MSG.ERASE_OBJECT;
+        chrome.tabs.sendMessage(tabs[0].id, msg, function (response) { });
+    }
+    function eraseHandler(e) {
+        if (e.keyCode === KEY_CODES.ENTER || e.type === EVENTS.CLICK) {
+            chrome.tabs.query(query, eraseUsingDict);
+        }
+    }
+    [EVENTS.KEY_DOWN, EVENTS.CLICK].forEach(function (event) {
+        ELEMENTS.BUTTON_ERASE.addEventListener(event, function (e) { eraseHandler(e) });
+    });
+
+    function storeHandler(e) {
+        let currentURLKey = ELEMENTS.INPUT_URL_KEY.value;
+        let currentEraseObj = createEraseObj();
+        if (e.keyCode === KEY_CODES.ENTER || e.type === EVENTS.CLICK) {
+            storeEraseObj(currentURLKey, currentEraseObj);
+        }
+
+    }
+    [EVENTS.KEY_DOWN, EVENTS.CLICK].forEach(function (event) {
+        ELEMENTS.BUTTON_STORE.addEventListener(event, function (e) { storeHandler(e) });
+    });
+
+    function retrieveHandler(e) {
+        if (e.keyCode === KEY_CODES.ENTER || e.type === EVENTS.CLICK) {
+            retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
+        }
+    }
+    [EVENTS.KEY_DOWN, EVENTS.CLICK].forEach(function (event) {
+        ELEMENTS.BUTTON_RETRIEVE.addEventListener(event, function (e) { retrieveHandler(e) });
+    });
+
+    function predictClassQuery(tabs) {
+        const msg = {
+            name: MSG.PREDICT_CLASS
+        }
         chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
             if (response !== undefined) {
                 ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = response.predictedClass;
             }
         });
-    });
-
-    ['keydown', 'click'].forEach(function (event) {
-        ELEMENTS.BUTTON_PREDICT.addEventListener(event, predictHandler);
+    }
+    function predictHandler(e) {
+        if (e.keyCode === KEY_CODES.ENTER || e.type === EVENTS.CLICK) {
+            chrome.tabs.query(query, predictClassQuery);
+        }
+    }
+    [EVENTS.KEY_DOWN, EVENTS.CLICK].forEach(function (event) {
+        ELEMENTS.BUTTON_PREDICT.addEventListener(event, function (e) { predictHandler(e); });
     });
 });
+
 function storeEraseObj(urlKey, eraseObj) {
     if (urlKey) {
         let saveObj = {};
@@ -105,14 +119,14 @@ function retrieveEraseObjContainer(urlKey) {
         if (eraseObj !== null) {
             prepopulateEraseFields(eraseObj);
         }
-        else{
+        else {
             // TODO: Retrieve error
         }
     });
 }
 
 function createEraseObj() {
-    const nodeListFilterTerms = ELEMENTS.UNORDERED_LIST_SEARCH_TERMS.getElementsByTagName("li");
+    const nodeListFilterTerms = ELEMENTS.UNORDERED_LIST_FILTER_TERMS.getElementsByTagName("li");
     const arrFilterTerms = getArrayFromList(nodeListFilterTerms);
 
     return {
@@ -124,7 +138,7 @@ function createEraseObj() {
 function prepopulateEraseFields(eraseObj) {
     const arrFilterTerms = eraseObj.filterTerms;
     for (let i = 0; i < arrFilterTerms.length; i++) {
-        addFilterItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, arrFilterTerms[i]);
+        addFilterItemFromText(ELEMENTS.UNORDERED_LIST_FILTER_TERMS, arrFilterTerms[i]);
     }
     ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = eraseObj.classname;
 }
@@ -158,24 +172,6 @@ function addFilterItemFromText(ul, text) {
     // Add event listener to delete on click
     buttonDelete.addEventListener("click", function (e) {
         ul.removeChild(li);
-    });
-}
-
-function eraseUsingDict(tabs) {
-    const msg = createEraseObj();
-    msg.name = MSG.ERASE_OBJECT;
-    chrome.tabs.sendMessage(tabs[0].id, msg, function (response) { });
-}
-
-function updateURLKey(tabs) {
-    // Ask for url for content script
-    const msg = {
-        name: MSG.GET_URL
-    }
-    chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
-        if (response !== undefined) {
-            ELEMENTS.INPUT_URL_KEY.value = response.url;
-        }
     });
 }
 

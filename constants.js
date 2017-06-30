@@ -6,8 +6,8 @@ const MSG = Object.freeze({
 });
 
 const ELEMENTS = Object.freeze({
-    UNORDERED_LIST_SEARCH_TERMS : document.getElementById('listFilterTerms'),
-    INPUT_SEARCH_TERM : document.getElementById('inputSearchTerm'),
+    UNORDERED_LIST_FILTER_TERMS : document.getElementById('listFilterTerms'),
+    INPUT_FILTER_TERM : document.getElementById('inputFilterTerm'),
     INPUT_CONTAINER_CLASS_NAME : document.getElementById('inputClassName'),
     INPUT_URL_KEY : document.getElementById('inputURLKey'),
     BUTTON_ERASE : document.getElementById('buttonErase'),
@@ -19,4 +19,10 @@ const ELEMENTS = Object.freeze({
 const KEY_CODES = Object.freeze({
     ENTER : 13,
     TAB : 9
+});
+
+const EVENTS = Object.freeze({
+    CLICK : 'click',
+    KEY_DOWN : 'keydown',
+    INPUT : 'input'
 });
