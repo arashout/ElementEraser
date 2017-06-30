@@ -1,5 +1,4 @@
 'use strict';
-
 // TODO: Use port instead of one off message?
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.name === MSG.ERASE_OBJECT) {
@@ -13,12 +12,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 });
 
-function removeDivs(className, searchTerms) {
+function removeDivs(className, filterTerms) {
     var elements = document.getElementsByClassName(className);
     for (let i = elements.length - 1; 0 <= i; i--) {
         let element = elements[i];
         let stringContent = element.textContent.toLowerCase();
-        if (searchTerms.some(function (term) { return stringContent.includes(term); })) {
+        if (filterTerms.some(function (term) { return stringContent.includes(term); })) {
             element.remove();
         }
     }
@@ -43,9 +42,9 @@ function findTopListItemClassName() {
     return filterDict(classDictionary);
 }
 const ELEMENT_DICT_KEYS = {
-    COUNT : "COUNT",
-    DEPTH : "DEPTH",
-    AVG_TEXT_COUNT : "AVERAGE_TEXT_COUNT"
+    COUNT: "COUNT",
+    DEPTH: "DEPTH",
+    AVG_TEXT_COUNT: "AVERAGE_TEXT_COUNT"
 }
 /**
  * A recursive function that fills in information in the document
@@ -78,29 +77,30 @@ function fillClassInformation(className, depth, element, classDict) {
         let textCount = element.textContent.length || 0;
         let avg = classDict[className][ELEMENT_DICT_KEYS.AVG_TEXT_COUNT];
         let count = classDict[className][ELEMENT_DICT_KEYS.COUNT];
-        let new_avg = (avg*count + textCount)/(count + 1);
+        let new_avg = (avg * count + textCount) / (count + 1);
         classDict[className][ELEMENT_DICT_KEYS.AVG_TEXT_COUNT] = new_avg;
         classDict[className][ELEMENT_DICT_KEYS.COUNT] += 1;
     }
     else {
         let textCount = element.textContent.length || 0;
         classDict[className] = {
-            [ELEMENT_DICT_KEYS.COUNT] : 1,
-            [ELEMENT_DICT_KEYS.DEPTH] : depth,
-            [ELEMENT_DICT_KEYS.AVG_TEXT_COUNT] : textCount,
-            [ELEMENT_DICT_KEYS.TOTAL_TEXT_COUNT] : textCount
+            [ELEMENT_DICT_KEYS.COUNT]: 1,
+            [ELEMENT_DICT_KEYS.DEPTH]: depth,
+            [ELEMENT_DICT_KEYS.AVG_TEXT_COUNT]: textCount,
+            [ELEMENT_DICT_KEYS.TOTAL_TEXT_COUNT]: textCount
         }
     }
 }
 function filterDict(dict) {
-    const FILTER_COUNT_THRESHOLD = 10;
-    const FILTER_AVG_TEXT_COUNT_THRESHOLD = 100;
+    const FILTER = Objects.freeze({
+        COUNT_THRESHOLD: 10,
+        AVG_TEXT_COUNT_THRESHOLD: 100
+    });
+
     for (let key in dict) {
         if (dict.hasOwnProperty(key)) {
-            if (dict[key][ELEMENT_DICT_KEYS.COUNT] < FILTER_COUNT_THRESHOLD) {
-                delete dict[key];
-            }
-            else if(dict[key][ELEMENT_DICT_KEYS.AVG_TEXT_COUNT] < FILTER_AVG_TEXT_COUNT_THRESHOLD) {
+            if (dict[key][ELEMENT_DICT_KEYS.COUNT] < FILTER.COUNT_THRESHOLD ||
+                dict[key][ELEMENT_DICT_KEYS.AVG_TEXT_COUNT] < FILTER.AVG_TEXT_COUNT_THRESHOLD) {
                 delete dict[key];
             }
         }
