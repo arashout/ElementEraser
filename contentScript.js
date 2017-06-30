@@ -27,7 +27,6 @@ function getBaseUrl() {
     if (location.origin === 'undefined') {
         location.origin = location.protocol + '//' + location.host;
     }
-    var l = findTopListItemClassName();
     return location.origin;
 }
 
@@ -35,7 +34,7 @@ function getBaseUrl() {
  * This method finds the top level list item so 
  * users don't have inspect html to find it themselves 
  */
-function findTopListItemClassName() {
+function predictItemClassName() {
     let classDictionary;
     let htmlElement = document.children[0];
     classDictionary = recursiveElementExplorer(htmlElement, 0, {});
