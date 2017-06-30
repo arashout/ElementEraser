@@ -1,70 +1,13 @@
 'use strict';
 
-function addFilterItemFromText(ul, text) {
-    // First check if term already exists in UL
-    if (ul.outerText.split('\n').includes(text)) {
-        return;
-    }
-
-    let li = document.createElement('li');
-    li.classList.add('searchTerm');
-    li.classList.add('block');
-    li.tabIndex = -1;
-
-    let span = document.createElement('span');
-    span.classList.add('tag');
-    span.classList.add('is-success');
-    span.appendChild(document.createTextNode(text));
-
-    let buttonDelete = document.createElement('button');
-    buttonDelete.classList.add('delete');
-    buttonDelete.classList.add('is-small');
-
-    span.appendChild(buttonDelete);
-
-    li.appendChild(span);
-
-    ul.appendChild(li);
-
-    // Add event listener to delete on click
-    buttonDelete.addEventListener("click", function (e) {
-        ul.removeChild(li);
-    });
-}
-
-function eraseUsingDict(tabs) {
-    const msg = createEraseObj();
-    msg.name = MSG.ERASE_OBJECT;
-    chrome.tabs.sendMessage(tabs[0].id, msg, function (response) { });
-}
-
-function updateURLKey(tabs) {
-    // Ask for url for content script
-    const msg = {
-        name: MSG.GET_URL
-    }
-    chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
-        if (response !== undefined) {
-            ELEMENTS.INPUT_URL_KEY.value = response.url;
-        }
-    });
-}
-
-/**
- * Given an element that contains <li> items
- * Return an array of strings for each <li> item
- */
-function getArrayFromList(elementContainer) {
-    let arrayLi = [];
-    for (let i = 0; i < elementContainer.length; i++) {
-        let li = elementContainer[i];
-        arrayLi.push(li.textContent);
-    }
-    return arrayLi;
-}
-
 document.addEventListener("DOMContentLoaded", function () {
-    // Add searchTerm event listeners
+    let query = {
+        active: true,
+        currentWindow: true
+    };
+
+    chrome.tabs.query(query, updateURLKey);
+
     ELEMENTS.INPUT_SEARCH_TERM.addEventListener('input', function (e) {
         let text = this.value;
         if (text.endsWith(',')) {
@@ -84,14 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
             this.value = '';
         }
     });
-
-    let query = {
-        active: true,
-        currentWindow: true
-    };
-
-    chrome.tabs.query(query, updateURLKey);
-
     ELEMENTS.BUTTON_ERASE.addEventListener('click', function (e) {
         chrome.tabs.query(query, eraseUsingDict);
     });
@@ -192,4 +127,67 @@ function prepopulateEraseFields(eraseObj) {
         addFilterItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, arrFilterTerms[i]);
     }
     ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = eraseObj.classname;
+}
+
+function addFilterItemFromText(ul, text) {
+    // First check if term already exists in UL
+    if (ul.outerText.split('\n').includes(text)) {
+        return;
+    }
+
+    let li = document.createElement('li');
+    li.classList.add('searchTerm');
+    li.classList.add('block');
+    li.tabIndex = -1;
+
+    let span = document.createElement('span');
+    span.classList.add('tag');
+    span.classList.add('is-success');
+    span.appendChild(document.createTextNode(text));
+
+    let buttonDelete = document.createElement('button');
+    buttonDelete.classList.add('delete');
+    buttonDelete.classList.add('is-small');
+
+    span.appendChild(buttonDelete);
+
+    li.appendChild(span);
+
+    ul.appendChild(li);
+
+    // Add event listener to delete on click
+    buttonDelete.addEventListener("click", function (e) {
+        ul.removeChild(li);
+    });
+}
+
+function eraseUsingDict(tabs) {
+    const msg = createEraseObj();
+    msg.name = MSG.ERASE_OBJECT;
+    chrome.tabs.sendMessage(tabs[0].id, msg, function (response) { });
+}
+
+function updateURLKey(tabs) {
+    // Ask for url for content script
+    const msg = {
+        name: MSG.GET_URL
+    }
+    chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
+        if (response !== undefined) {
+            ELEMENTS.INPUT_URL_KEY.value = response.url;
+        }
+    });
+}
+
+/**
+ * Given an element that contains <li> items
+ * Return an array of strings for each <li> item
+ */
+function getArrayFromList(elementContainer) {
+    let arrayLi = [];
+    for (let i = 0; i < elementContainer.length; i++) {
+        let li = elementContainer[i];
+        arrayLi.push(li.textContent);
+    }
+    return arrayLi;
 }
