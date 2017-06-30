@@ -2,14 +2,18 @@
 // TODO: Use port instead of one off message?
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.name === MSG.ERASE_OBJECT) {
-        removeDivs(message['classname'], message['searchTerms']);
+        removeDivs(message['classname'], message['FilterTerms']);
     }
     else if (message.name === MSG.GET_URL) {
         sendResponse({
             url: getBaseUrl()
         });
     }
-
+    else if (message.name === MSG.PREDICT_CLASS){
+        sendResponse({
+            predictedClass : "class"
+        })
+    }
 });
 
 function removeDivs(className, filterTerms) {

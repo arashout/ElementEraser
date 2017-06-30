@@ -1,6 +1,6 @@
 'use strict';
 
-function addSearchItemFromText(ul, text) {
+function addFilterItemFromText(ul, text) {
     // First check if term already exists in UL
     if (ul.outerText.split('\n').includes(text)) {
         return;
@@ -46,7 +46,6 @@ function updateURLKey(tabs) {
     chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
         if (response !== undefined) {
             ELEMENTS.INPUT_URL_KEY.value = response.url;
-            retrieveEraseObjContainer(response.url);
         }
     });
 }
@@ -71,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (text.endsWith(',')) {
             text = text.replace(/,/g, '');
             if (text.length !== 0) {
-                addSearchItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, text);
+                addFilterItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, text);
                 this.value = '';
             } else this.value = '';
 
@@ -81,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ELEMENTS.INPUT_SEARCH_TERM.addEventListener('keydown', function (e) {
         if (this.value !== '' &&
             (e.keyCode === KEY_CODES.TAB || e.keyCode === KEY_CODES.ENTER)) {
-            addSearchItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, this.value);
+            addFilterItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, this.value);
             this.value = '';
         }
     });
@@ -92,7 +91,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     chrome.tabs.query(query, updateURLKey);
-    chrome.tabs.query(query, eraseUsingDict);
 
     ELEMENTS.BUTTON_ERASE.addEventListener('click', function (e) {
         chrome.tabs.query(query, eraseUsingDict);
@@ -117,20 +115,36 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     ELEMENTS.BUTTON_RETRIEVE.addEventListener('click', function (e) {
-        let result = retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
-        if (!result) {
-            // TODO: Give warning tooltip
-            alert('No data stored for this URL');
-        }
+        retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
     });
     ELEMENTS.BUTTON_RETRIEVE.addEventListener('keydown', function (e) {
         if (e.keyCode === KEY_CODES.ENTER) {
-            let result = retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
-            if (!result) {
-                // TODO: Give warning tooltip
-                alert('No data stored for this URL');
-            }
+            retrieveEraseObjContainer(ELEMENTS.INPUT_URL_KEY.value);
         }
+    });
+
+    function predictHandler(e) {
+        if (e.keyCode === KEY_CODES.ENTER) {
+            const msg = {
+                name: MSG.PREDICT_CLASS
+            }
+            chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
+                if (response !== undefined) {
+                    ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = response.predictedClass;
+                }
+            });
+        }
+    }
+    ELEMENTS.BUTTON_PREDICT.addEventListener('click', function (e) {
+        chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
+            if (response !== undefined) {
+                ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = response.predictedClass;
+            }
+        });
+    });
+
+    ['keydown', 'click'].forEach(function (event) {
+        ELEMENTS.BUTTON_PREDICT.addEventListener(event, predictHandler);
     });
 });
 function storeEraseObj(urlKey, eraseObj) {
@@ -153,28 +167,29 @@ function retrieveEraseObjContainer(urlKey) {
         // TODO: I shouldn't have to do this! Figure out what's going on
         const urlKey = ELEMENTS.INPUT_URL_KEY.value;
         const eraseObj = result[urlKey];
-        if (eraseObj === null) {
-            return false;
+        if (eraseObj !== null) {
+            prepopulateEraseFields(eraseObj);
         }
-        prepopulateEraseFields(eraseObj);
-        return true;
+        else{
+            // TODO: Retrieve error
+        }
     });
 }
 
 function createEraseObj() {
-    const nodeListSearchTerms = ELEMENTS.UNORDERED_LIST_SEARCH_TERMS.getElementsByTagName("li");
-    const arrSearchTerms = getArrayFromList(nodeListSearchTerms);
+    const nodeListFilterTerms = ELEMENTS.UNORDERED_LIST_SEARCH_TERMS.getElementsByTagName("li");
+    const arrFilterTerms = getArrayFromList(nodeListFilterTerms);
 
     return {
-        searchTerms: arrSearchTerms,
+        filterTerms: arrFilterTerms,
         classname: ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value
     }
 }
 
 function prepopulateEraseFields(eraseObj) {
-    const arrSearchTerms = eraseObj.searchTerms;
-    for (let i = 0; i < arrSearchTerms.length; i++) {
-        addSearchItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, arrSearchTerms[i]);
+    const arrFilterTerms = eraseObj.filterTerms;
+    for (let i = 0; i < arrFilterTerms.length; i++) {
+        addFilterItemFromText(ELEMENTS.UNORDERED_LIST_SEARCH_TERMS, arrFilterTerms[i]);
     }
     ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = eraseObj.classname;
 }
