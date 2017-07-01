@@ -2,17 +2,17 @@
 // TODO: Use port instead of one off message?
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.name === MSG.ERASE_OBJECT) {
-        removeDivs(message['classname'], message['FilterTerms']);
+        removeDivs(message['classname'], message['filterTerms']);
     }
     else if (message.name === MSG.GET_URL) {
         sendResponse({
             url: getBaseUrl()
         });
     }
-    else if (message.name === MSG.PREDICT_CLASS){
+    else if (message.name === MSG.PREDICT_CLASS) {
         sendResponse({
-            predictedClass : "class"
-        })
+            predictedClass: predictItemClassName()
+        });
     }
 });
 
@@ -34,21 +34,46 @@ function getBaseUrl() {
     return location.origin;
 }
 
+const ELEMENT_INFO = {
+    COUNT: 'COUNT',
+    DEPTH: 'DEPTH',
+    AVG_TEXT_COUNT: 'AVERAGE_TEXT_COUNT',
+    CLASS_NAME: 'CLASS_NAME', 
+    GENERATED_ID: 'GENERATED_ID'
+}
+
 /**
  * This method finds the top level list item so 
  * users don't have inspect html to find it themselves 
  */
 function predictItemClassName() {
-    let classDictionary;
+    let elementInfoDict;
     let htmlElement = document.children[0];
-    classDictionary = recursiveElementExplorer(htmlElement, 0, {});
-    return filterDict(classDictionary);
+    
+    // Get all elements
+    elementInfoDict = recursiveElementExplorer(htmlElement, 0, {});
+    let elementInfoArray = Object.values(elementInfoDict);
+
+    // Analyze Array
+    const FILTER_THRESHOLDS = Object.freeze({
+        COUNT : 20,
+        AVG_TEXT_COUNT : 50
+    });
+
+    elementInfoArray = elementInfoArray.filter(function(elementInfo){
+        return (
+            elementInfo[ELEMENT_INFO.COUNT] > FILTER_THRESHOLDS.COUNT &&
+            elementInfo[ELEMENT_INFO.AVG_TEXT_COUNT] > FILTER_THRESHOLDS.AVG_TEXT_COUNT
+        );
+    });
+
+    elementInfoArray = elementInfoArray.sort(function(a, b){
+        return a[ELEMENT_INFO.AVG_TEXT_COUNT] - b[ELEMENT_INFO.AVG_TEXT_COUNT];
+    });
+
+    return elementInfoArray[elementInfoArray.length-1][ELEMENT_INFO.CLASS_NAME];
 }
-const ELEMENT_DICT_KEYS = {
-    COUNT: "COUNT",
-    DEPTH: "DEPTH",
-    AVG_TEXT_COUNT: "AVERAGE_TEXT_COUNT"
-}
+
 /**
  * A recursive function that fills in information in the document
  * @param {HTMLCollection} element
@@ -56,9 +81,7 @@ const ELEMENT_DICT_KEYS = {
  * @param {Dictionary} dict
  */
 function recursiveElementExplorer(element, depth, dict) {
-    element.classList.forEach(function (className) {
-        fillClassInformation(className, depth, element, dict);
-    });
+    fillElementInfo(element, depth, dict);
     //Explore children
     let elChildren = element.children;
     if (elChildren.length === 0) return dict; // No children!
@@ -70,43 +93,33 @@ function recursiveElementExplorer(element, depth, dict) {
     return dict;
 }
 
-function fillClassInformation(className, depth, element, classDict) {
+function fillElementInfo(element, depth, dict) {
     // Store information about this element
-    if (className in classDict) {
-        // Choose deepest depth
-        let curDepth = classDict[className][ELEMENT_DICT_KEYS.DEPTH];
-        if (curDepth > depth) classDict[className][ELEMENT_DICT_KEYS.DEPTH] = curDepth;
-        // Update average and count
-        let textCount = element.textContent.length || 0;
-        let avg = classDict[className][ELEMENT_DICT_KEYS.AVG_TEXT_COUNT];
-        let count = classDict[className][ELEMENT_DICT_KEYS.COUNT];
-        let new_avg = (avg * count + textCount) / (count + 1);
-        classDict[className][ELEMENT_DICT_KEYS.AVG_TEXT_COUNT] = new_avg;
-        classDict[className][ELEMENT_DICT_KEYS.COUNT] += 1;
-    }
-    else {
-        let textCount = element.textContent.length || 0;
-        classDict[className] = {
-            [ELEMENT_DICT_KEYS.COUNT]: 1,
-            [ELEMENT_DICT_KEYS.DEPTH]: depth,
-            [ELEMENT_DICT_KEYS.AVG_TEXT_COUNT]: textCount,
-            [ELEMENT_DICT_KEYS.TOTAL_TEXT_COUNT]: textCount
-        }
-    }
-}
-function filterDict(dict) {
-    const FILTER = Objects.freeze({
-        COUNT_THRESHOLD: 10,
-        AVG_TEXT_COUNT_THRESHOLD: 100
-    });
+    let currentClass;
+    let generatedId;
+    for (let i = 0; i < element.classList.length; i++) {
+        currentClass = element.classList[i];
+        generatedId = element.tagName + " : " + currentClass + "  : " + depth;
 
-    for (let key in dict) {
-        if (dict.hasOwnProperty(key)) {
-            if (dict[key][ELEMENT_DICT_KEYS.COUNT] < FILTER.COUNT_THRESHOLD ||
-                dict[key][ELEMENT_DICT_KEYS.AVG_TEXT_COUNT] < FILTER.AVG_TEXT_COUNT_THRESHOLD) {
-                delete dict[key];
+        if (generatedId in dict) {
+            let curInfo = dict[generatedId];
+            let textCount = element.textContent.length || 0;
+            let avg = curInfo[ELEMENT_INFO.AVG_TEXT_COUNT];
+            let count = curInfo[ELEMENT_INFO.COUNT];
+            let new_avg = (avg * count + textCount) / (count + 1);
+            //Set new information
+            dict[generatedId][ELEMENT_INFO.AVG_TEXT_COUNT] = new_avg;
+            dict[generatedId][ELEMENT_INFO.COUNT] += 1;
+        }
+        else {
+            let textCount = element.textContent.length || 0;
+            dict[generatedId] = {
+                [ELEMENT_INFO.COUNT]: 1,
+                [ELEMENT_INFO.DEPTH]: depth,
+                [ELEMENT_INFO.AVG_TEXT_COUNT]: textCount,
+                [ELEMENT_INFO.CLASS_NAME]: currentClass,
+                [ELEMENT_INFO.GENERATED_ID]: generatedId
             }
         }
     }
-    return dict;
 }
