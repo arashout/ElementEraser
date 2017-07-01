@@ -94,6 +94,25 @@ document.addEventListener("DOMContentLoaded", function () {
     [EVENTS.KEY_DOWN, EVENTS.CLICK].forEach(function (event) {
         ELEMENTS.BUTTON_PREDICT.addEventListener(event, function (e) { predictHandler(e); });
     });
+
+    // On start up ask background script what the current state should be
+    function updateToggle() {
+        const msg = {
+            name: MSG.GET_STATE
+        }
+        chrome.runtime.sendMessage(msg, function (response) {
+            ELEMENTS.TOGGLE_STATE.checked = response['currentState'];
+        });
+    }
+    updateToggle();
+    ELEMENTS.TOGGLE_STATE.addEventListener('change', function (e) {
+        const msg = {
+            name: MSG.TOGGLE_STATE
+        }
+        chrome.runtime.sendMessage(msg, function (response) {
+            console.log(response['currentState']);
+        });
+    });
 });
 
 function storeEraseObj(urlKey, eraseObj) {

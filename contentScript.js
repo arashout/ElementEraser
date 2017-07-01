@@ -1,5 +1,5 @@
 'use strict';
-// TODO: Use port instead of one off message?
+
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.name === MSG.ERASE_OBJECT) {
         removeDivs(message['classname'], message['filterTerms']);
