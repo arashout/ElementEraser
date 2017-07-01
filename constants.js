@@ -7,7 +7,10 @@ const MSG = Object.freeze({
     GET_STATE: 'MSG_GET_STATE'
 
 });
-
+const MSG_KEYS = Object.freeze({
+    NAME: 'NAME',
+    CURRENT_STATE: 'CURRENT_STATE'
+});
 const ELEMENTS = Object.freeze({
     UNORDERED_LIST_FILTER_TERMS: document.getElementById('listFilterTerms'),
     INPUT_FILTER_TERM: document.getElementById('inputFilterTerm'),

@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateURLKey(tabs) {
         // Ask for url for content script
         const msg = {
-            name: MSG.GET_URL
+            [MSG_KEYS.NAME]: MSG.GET_URL
         }
         chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
             if (response !== undefined) {
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function eraseUsingDict(tabs) {
         const msg = createEraseObj();
-        msg.name = MSG.ERASE_OBJECT;
+        msg[MSG_KEYS.NAME] = MSG.ERASE_OBJECT;
         chrome.tabs.sendMessage(tabs[0].id, msg, function (response) { });
     }
     function eraseHandler(e) {
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function predictClassQuery(tabs) {
         const msg = {
-            name: MSG.PREDICT_CLASS
+            [MSG_KEYS.NAME]: MSG.PREDICT_CLASS
         }
         chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
             if (response !== undefined) {
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // On start up ask background script what the current state should be
     function updateToggle() {
         const msg = {
-            name: MSG.GET_STATE
+            [MSG_KEYS.NAME]: MSG.GET_STATE
         }
         chrome.runtime.sendMessage(msg, function (response) {
             ELEMENTS.TOGGLE_STATE.checked = response['currentState'];
@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateToggle();
     ELEMENTS.TOGGLE_STATE.addEventListener('change', function (e) {
         const msg = {
-            name: MSG.TOGGLE_STATE
+            [MSG_KEYS.NAME]: MSG.TOGGLE_STATE
         }
         chrome.runtime.sendMessage(msg, function (response) {
             console.log(response['currentState']);

@@ -1,15 +1,15 @@
 'use strict';
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    if (message.name === MSG.ERASE_OBJECT) {
+    if (message[MSG_KEYS.NAME] === MSG.ERASE_OBJECT) {
         removeDivs(message['classname'], message['filterTerms']);
     }
-    else if (message.name === MSG.GET_URL) {
+    else if (message[MSG_KEYS.NAME] === MSG.GET_URL) {
         sendResponse({
             url: getBaseUrl()
         });
     }
-    else if (message.name === MSG.PREDICT_CLASS) {
+    else if (message[MSG_KEYS.NAME] === MSG.PREDICT_CLASS) {
         sendResponse({
             predictedClass: predictItemClassName()
         });
