@@ -1,4 +1,5 @@
 'use strict';
+// Object to store message names
 const MSG = Object.freeze({
     ERASE_OBJECT: 'MSG_ERASE_OBJECT',
     GET_URL: 'MSG_GET_URL',
@@ -8,9 +9,13 @@ const MSG = Object.freeze({
 
 });
 const MSG_KEYS = Object.freeze({
-    NAME: 'NAME',
+    NAME: 'NAME'
+});
+const RESPONSE_KEYS = Object.freeze({
+    PREDICTED_CLASSES: 'PREDICTED_CLASSES',
     CURRENT_STATE: 'CURRENT_STATE'
 });
+
 const ELEMENTS = Object.freeze({
     UNORDERED_LIST_FILTER_TERMS: document.getElementById('listFilterTerms'),
     INPUT_FILTER_TERM: document.getElementById('inputFilterTerm'),

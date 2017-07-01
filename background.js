@@ -1,7 +1,7 @@
 let state = STATE.OFF;
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    if (message.name === MSG.TOGGLE_STATE) {
+    if (message[MSG_KEYS.NAME] === MSG.TOGGLE_STATE) {
         switch (state) {
             case STATE.OFF:
                 state = STATE.ON;
@@ -12,9 +12,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             default:
                 state = STATE.OFF;
         }
-        sendResponse({ 'currentState': state });
+        sendResponse({ [RESPONSE_KEYS.CURRENT_STATE]: state });
     }
-    else if (message.name === MSG.GET_STATE) {
-        sendResponse({ 'currentState': state });
+    else if (message[MSG_KEYS.NAME] === MSG.GET_STATE) {
+        sendResponse({ [RESPONSE_KEYS.CURRENT_STATE]: state });
     }
 });

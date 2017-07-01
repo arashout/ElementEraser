@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
             if (response !== undefined) {
-                ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = response.predictedClass;
+                ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = response[RESPONSE_KEYS.PREDICTED_CLASSES];
             }
         });
     }
@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
             [MSG_KEYS.NAME]: MSG.GET_STATE
         }
         chrome.runtime.sendMessage(msg, function (response) {
-            ELEMENTS.TOGGLE_STATE.checked = response['currentState'];
+            ELEMENTS.TOGGLE_STATE.checked = response[RESPONSE_KEYS.CURRENT_STATE];
         });
     }
     updateToggle();
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
             [MSG_KEYS.NAME]: MSG.TOGGLE_STATE
         }
         chrome.runtime.sendMessage(msg, function (response) {
-            console.log(response['currentState']);
+            console.log(response[RESPONSE_KEYS.CURRENT_STATE]);
         });
     });
 });
