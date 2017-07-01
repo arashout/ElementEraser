@@ -2,7 +2,8 @@
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message[MSG_KEYS.NAME] === MSG.ERASE_OBJECT) {
-        removeDivs(message['classname'], message['filterTerms']);
+        let eraseObj = message[MSG_KEYS.ERASE_OBJECT];
+        removeDivs(eraseObj[ERASE_KEYS.CLASS_NAMES], eraseObj[ERASE_KEYS.FILTER_TERMS]);
     }
     else if (message[MSG_KEYS.NAME] === MSG.GET_URL) {
         sendResponse({
@@ -14,6 +15,15 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             predictedClass: predictItemClassName()
         });
     }
+});
+document.addEventListener("DOMContentLoaded", function () {
+    const msg = {
+        [MSG_KEYS.NAME]: MSG.CHANGES_DETECTED,
+        [MSG_KEYS.CURRENT_URL]: getBaseUrl()
+    };
+
+    chrome.runtime.sendMessage(msg, function (response) {
+    });
 });
 
 function removeDivs(className, filterTerms) {
@@ -38,7 +48,7 @@ const ELEMENT_INFO = {
     COUNT: 'COUNT',
     DEPTH: 'DEPTH',
     AVG_TEXT_COUNT: 'AVERAGE_TEXT_COUNT',
-    CLASS_NAME: 'CLASS_NAME', 
+    CLASS_NAME: 'CLASS_NAME',
     GENERATED_ID: 'GENERATED_ID'
 }
 
@@ -49,29 +59,29 @@ const ELEMENT_INFO = {
 function predictItemClassName() {
     let elementInfoDict;
     let htmlElement = document.children[0];
-    
+
     // Get all elements
     elementInfoDict = recursiveElementExplorer(htmlElement, 0, {});
     let elementInfoArray = Object.values(elementInfoDict);
 
     // Analyze Array
     const FILTER_THRESHOLDS = Object.freeze({
-        COUNT : 20,
-        AVG_TEXT_COUNT : 50
+        COUNT: 20,
+        AVG_TEXT_COUNT: 50
     });
 
-    elementInfoArray = elementInfoArray.filter(function(elementInfo){
+    elementInfoArray = elementInfoArray.filter(function (elementInfo) {
         return (
             elementInfo[ELEMENT_INFO.COUNT] > FILTER_THRESHOLDS.COUNT &&
             elementInfo[ELEMENT_INFO.AVG_TEXT_COUNT] > FILTER_THRESHOLDS.AVG_TEXT_COUNT
         );
     });
 
-    elementInfoArray = elementInfoArray.sort(function(a, b){
+    elementInfoArray = elementInfoArray.sort(function (a, b) {
         return a[ELEMENT_INFO.AVG_TEXT_COUNT] - b[ELEMENT_INFO.AVG_TEXT_COUNT];
     });
 
-    return elementInfoArray[elementInfoArray.length-1][ELEMENT_INFO.CLASS_NAME];
+    return elementInfoArray[elementInfoArray.length - 1][ELEMENT_INFO.CLASS_NAME];
 }
 
 /**

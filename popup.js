@@ -42,8 +42,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function eraseUsingDict(tabs) {
-        const msg = createEraseObj();
-        msg[MSG_KEYS.NAME] = MSG.ERASE_OBJECT;
+        const msg = {
+            [MSG_KEYS.NAME]: MSG.ERASE_OBJECT,
+            [MSG_KEYS.ERASE_OBJECT]: createEraseObj()
+        }
         chrome.tabs.sendMessage(tabs[0].id, msg, function (response) { });
     }
     function eraseHandler(e) {
@@ -119,7 +121,7 @@ function storeEraseObj(urlKey, eraseObj) {
     if (urlKey) {
         let saveObj = {};
         saveObj[urlKey] = eraseObj;
-        chrome.storage.local.set(saveObj, function () {
+        chrome.storage.sync.set(saveObj, function () {
             if (chrome.extension.lastError) {
                 alert('An error occurred: ' + chrome.extension.lastError.message);
             }
@@ -131,7 +133,7 @@ function storeEraseObj(urlKey, eraseObj) {
 }
 
 function retrieveEraseObjContainer(urlKey) {
-    chrome.storage.local.get(urlKey, function (result) {
+    chrome.storage.sync.get(urlKey, function (result) {
         // TODO: I shouldn't have to do this! Figure out what's going on
         const urlKey = ELEMENTS.INPUT_URL_KEY.value;
         const eraseObj = result[urlKey];
@@ -149,17 +151,19 @@ function createEraseObj() {
     const arrFilterTerms = getArrayFromList(nodeListFilterTerms);
 
     return {
-        filterTerms: arrFilterTerms,
-        classname: ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value
+        [ERASE_KEYS.FILTER_TERMS]: arrFilterTerms,
+        [ERASE_KEYS.CLASS_NAMES]: ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value
     }
 }
 
 function prepopulateEraseFields(eraseObj) {
-    const arrFilterTerms = eraseObj.filterTerms;
-    for (let i = 0; i < arrFilterTerms.length; i++) {
-        addFilterItemFromText(ELEMENTS.UNORDERED_LIST_FILTER_TERMS, arrFilterTerms[i]);
+    if (eraseObj) {
+        const arrFilterTerms = eraseObj[ERASE_KEYS.FILTER_TERMS];
+        for (let i = 0; i < arrFilterTerms.length; i++) {
+            addFilterItemFromText(ELEMENTS.UNORDERED_LIST_FILTER_TERMS, arrFilterTerms[i]);
+        }
+        ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = eraseObj[ERASE_KEYS.CLASS_NAMES];
     }
-    ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = eraseObj.classname;
 }
 
 function addFilterItemFromText(ul, text) {
