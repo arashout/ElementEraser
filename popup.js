@@ -118,7 +118,7 @@ function storeEraseObj(urlKey, eraseObj) {
         saveObj[urlKey] = eraseObj;
         chrome.storage.sync.set(saveObj, function () {
             if (chrome.extension.lastError) {
-                alert('An error occurred: ' + chrome.extension.lastError.message);
+                console.log('An error occurred: ' + chrome.extension.lastError.message);
             }
         });
     }
@@ -130,13 +130,12 @@ function storeEraseObj(urlKey, eraseObj) {
 function retrieveEraseObjContainer(urlKey) {
     chrome.storage.sync.get(urlKey, function (result) {
         // TODO: I shouldn't have to do this! Figure out what's going on
-        let urlKey = ELEMENTS.INPUT_URL_KEY.value;
         let eraseObj = result[urlKey];
-        if (eraseObj !== null) {
-            prepopulateEraseFields(eraseObj);
+        if (chrome.extension.lastError) {
+            console.log('An error occurred: ' + chrome.extension.lastError.message);
         }
-        else {
-            // TODO: Retrieve error
+        else if (eraseObj !== null) {
+            prepopulateEraseFields(eraseObj);
         }
     });
 }
