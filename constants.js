@@ -9,14 +9,15 @@ const MSG = Object.freeze({
     CHANGES_DETECTED: 'MSG_CHANGES_DETECTED'
 });
 const MSG_KEYS = Object.freeze({
-    NAME: 'NAME',
-    CURRENT_URL: 'CURRENT_URL',
-    ERASE_OBJECT: 'RESPONSE_ERASE_OBJECT'
+    NAME: 'MSG_NAME',
+    CURRENT_URL: 'MSG_CURRENT_URL',
+    ERASE_OBJECT: 'MSG_ERASE_OBJECT'
 });
 const RESPONSE_KEYS = Object.freeze({
     PREDICTED_CLASSES: 'RESPONSE_PREDICTED_CLASSES',
     CURRENT_STATE: 'RESPONSE_CURRENT_STATE',
-    URL: "RESPONSE_URL"
+    URL: 'RESPONSE_URL',
+    SUCCESS: 'RESPONSE_SUCCESS'
 });
 const ERASE_KEYS = Object.freeze({
     FILTER_TERMS: 'ERASE_FILTER_TERMS',
@@ -48,4 +49,13 @@ const EVENTS = Object.freeze({
 const STATE = Object.freeze({
     OFF: false,
     ON: true
+});
+
+const TIMERS = Object.freeze({
+    ERASE_DIVS : 2*1000
+});
+
+const ACTIVE_TAB_QUERY = Object.freeze({
+    active: true,
+    currentWindow: true
 });

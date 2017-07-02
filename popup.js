@@ -1,14 +1,9 @@
 'use strict';
 
 document.addEventListener("DOMContentLoaded", function () {
-    let query = {
-        active: true,
-        currentWindow: true
-    };
-
     function updateURLKey(tabs) {
         // Ask for url for content script
-        const msg = {
+        let msg = {
             [MSG_KEYS.NAME]: MSG.GET_URL
         }
         chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
@@ -17,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-    chrome.tabs.query(query, updateURLKey);
+    chrome.tabs.query(ACTIVE_TAB_QUERY, updateURLKey);
 
     function inputFilterTermHandler(e) {
         let inputElement = ELEMENTS.INPUT_FILTER_TERM;
@@ -42,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function eraseUsingDict(tabs) {
-        const msg = {
+        let msg = {
             [MSG_KEYS.NAME]: MSG.ERASE_OBJECT,
             [MSG_KEYS.ERASE_OBJECT]: createEraseObj()
         }
@@ -50,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     function eraseHandler(e) {
         if (e.keyCode === KEY_CODES.ENTER || e.type === EVENTS.CLICK) {
-            chrome.tabs.query(query, eraseUsingDict);
+            chrome.tabs.query(ACTIVE_TAB_QUERY, eraseUsingDict);
         }
     }
     [EVENTS.KEY_DOWN, EVENTS.CLICK].forEach(function (event) {
@@ -79,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function predictClassQuery(tabs) {
-        const msg = {
+        let msg = {
             [MSG_KEYS.NAME]: MSG.PREDICT_CLASS
         }
         chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
@@ -90,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     function predictHandler(e) {
         if (e.keyCode === KEY_CODES.ENTER || e.type === EVENTS.CLICK) {
-            chrome.tabs.query(query, predictClassQuery);
+            chrome.tabs.query(ACTIVE_TAB_QUERY, predictClassQuery);
         }
     }
     [EVENTS.KEY_DOWN, EVENTS.CLICK].forEach(function (event) {
@@ -99,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // On start up ask background script what the current state should be
     function updateToggle() {
-        const msg = {
+        let msg = {
             [MSG_KEYS.NAME]: MSG.GET_STATE
         }
         chrome.runtime.sendMessage(msg, function (response) {
@@ -108,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     updateToggle();
     ELEMENTS.TOGGLE_STATE.addEventListener('change', function (e) {
-        const msg = {
+        let msg = {
             [MSG_KEYS.NAME]: MSG.TOGGLE_STATE
         }
         chrome.runtime.sendMessage(msg, function (response) {
@@ -135,8 +130,8 @@ function storeEraseObj(urlKey, eraseObj) {
 function retrieveEraseObjContainer(urlKey) {
     chrome.storage.sync.get(urlKey, function (result) {
         // TODO: I shouldn't have to do this! Figure out what's going on
-        const urlKey = ELEMENTS.INPUT_URL_KEY.value;
-        const eraseObj = result[urlKey];
+        let urlKey = ELEMENTS.INPUT_URL_KEY.value;
+        let eraseObj = result[urlKey];
         if (eraseObj !== null) {
             prepopulateEraseFields(eraseObj);
         }

@@ -1,4 +1,20 @@
-let state = STATE.OFF;
+var state = STATE.OFF;
+
+var currentTab;
+var currentURLKey;
+var currentEraseObject;
+
+function updateTab(tabs) {
+    currentTab = tabs[0];
+}
+function updateEraseObject(urlKey){
+    chrome.storage.sync.get(urlKey, function (result){
+        if(chrome.extension.lastError){
+            console.log('An error occurred: ' + chrome.extension.lastError.message);
+        }
+        else currentEraseObject = result[urlKey];
+    });
+}
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message[MSG_KEYS.NAME] === MSG.TOGGLE_STATE) {
@@ -18,26 +34,40 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         sendResponse({ [RESPONSE_KEYS.CURRENT_STATE]: state });
     }
     else if (message[MSG_KEYS.NAME] === MSG.CHANGES_DETECTED) {
+        currentURLKey = message[MSG_KEYS.CURRENT_URL];
         if (state === STATE.ON) {
-            const urlKey = message[MSG_KEYS.CURRENT_URL];
             chrome.storage.sync.get(urlKey, function (result) {
                 if (chrome.extension.lastError) {
-                    alert('An error occurred: ' + chrome.extension.lastError.message);
+                    console.log('An error occurred: ' + chrome.extension.lastError.message);
                 }
                 else {
-                    const eraseObj = result[urlKey];
-                    if (eraseObj !== null) {
-                        const msg = {
-                            [MSG_KEYS.NAME]: MSG.ERASE_OBJECT,
-                            [MSG_KEYS.ERASE_OBJECT]: eraseObj
-                        }
-                        chrome.runtime.sendMessage(msg, function (response) {
-                            console.log(response);
-                        });
-                    }
-                    else {}
+                    currentEraseObject = result[urlKey];
                 }
             });
         }
+        sendResponse({
+            [RESPONSE_KEYS.CURRENT_STATE]: state,
+            [RESPONSE_KEYS.SUCCESS]: true
+        });
     }
 });
+
+// Periodic checker for erasing divs!
+function eraseDivsMessage() {
+    if(!currentTab || !currentEraseObject){
+        chrome.tabs.query(ACTIVE_TAB_QUERY, updateTab);
+        updateEraseObject(currentURLKey);
+    }
+    
+    // Coercion to falsy values here
+    if (state === STATE.ON && currentEraseObject && currentTab) {
+        let msg = {
+            [MSG_KEYS.NAME]: MSG.ERASE_OBJECT,
+            [MSG_KEYS.ERASE_OBJECT]: currentEraseObject
+        }
+        console.log("sent erase request");
+        chrome.tabs.sendMessage(currentTab.id, msg, function (response) { });
+    }
+}
+
+var interval = setInterval(eraseDivsMessage, TIMERS.ERASE_DIVS);
