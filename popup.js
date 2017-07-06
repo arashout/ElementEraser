@@ -85,8 +85,17 @@ document.addEventListener("DOMContentLoaded", function () {
             [MSG_KEYS.NAME]: MSG.PREDICT_CLASS
         }
         chrome.tabs.sendMessage(tabs[0].id, msg, function (response) {
-            if (response !== undefined) {
-                ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = response[RESPONSE_KEYS.PREDICTED_CLASSES];
+            if (response === undefined) {
+            }
+            else if(response[RESPONSE_KEYS.PREDICTED_CLASSES].length != 0){
+                let arrClassNames = response[RESPONSE_KEYS.PREDICTED_CLASSES];
+                arrClassNames.forEach(function(elementClassName) {
+                    addItemFromText(ELEMENTS.UNORDERED_LIST_CLASS_NAMES, elementClassName);
+                }, this);
+            }
+            else{
+                // TODO: Add tooltip for this
+                console.log('Could not predict any class names for containers')
             }
         });
     }

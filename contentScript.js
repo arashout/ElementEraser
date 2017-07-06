@@ -11,8 +11,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         });
     }
     else if (message[MSG_KEYS.NAME] === MSG.PREDICT_CLASS) {
+        let predictedClasses = predictItemClassNames();
         sendResponse({
-            predictedClass: predictItemClassName()
+            [RESPONSE_KEYS.PREDICTED_CLASSES] : predictedClasses
         });
     }
 });
@@ -56,36 +57,23 @@ function getBaseUrl() {
     return location.origin;
 }
 
-const ELEMENT_INFO = {
-    COUNT: 'COUNT',
-    DEPTH: 'DEPTH',
-    AVG_TEXT_COUNT: 'AVERAGE_TEXT_COUNT',
-    CLASS_NAME: 'CLASS_NAME',
-    GENERATED_ID: 'GENERATED_ID'
-}
-
 /**
  * This method finds the top level list item so 
  * users don't have inspect html to find it themselves 
  */
-function predictItemClassName() {
+function predictItemClassNames() {
     let elementInfoDict;
     let htmlElement = document.children[0];
 
     // Get all elements
     elementInfoDict = recursiveElementExplorer(htmlElement, 0, {});
+    // Turn a dictionary into an array of objects (For Filter+Sorting)
     let elementInfoArray = Object.values(elementInfoDict);
-
-    // Analyze Array
-    const FILTER_THRESHOLDS = Object.freeze({
-        COUNT: 20,
-        AVG_TEXT_COUNT: 50
-    });
 
     elementInfoArray = elementInfoArray.filter(function (elementInfo) {
         return (
-            elementInfo[ELEMENT_INFO.COUNT] > FILTER_THRESHOLDS.COUNT &&
-            elementInfo[ELEMENT_INFO.AVG_TEXT_COUNT] > FILTER_THRESHOLDS.AVG_TEXT_COUNT
+            elementInfo[ELEMENT_INFO.COUNT] > THRESHOLDS.COUNT &&
+            elementInfo[ELEMENT_INFO.AVG_TEXT_COUNT] > THRESHOLDS.AVG_TEXT_COUNT
         );
     });
 
@@ -93,7 +81,14 @@ function predictItemClassName() {
         return a[ELEMENT_INFO.AVG_TEXT_COUNT] - b[ELEMENT_INFO.AVG_TEXT_COUNT];
     });
 
-    return elementInfoArray[elementInfoArray.length - 1][ELEMENT_INFO.CLASS_NAME];
+    let topNClassNames = [];
+    let count = 0;
+    for (let i = elementInfoArray.length - 1; i >= 0; i--) {
+        count++;
+        if(count > THRESHOLDS.TOP_N){break;}
+        topNClassNames.push(elementInfoArray[i][ELEMENT_INFO.CLASS_NAME]);
+    }
+    return topNClassNames;
 }
 
 /**

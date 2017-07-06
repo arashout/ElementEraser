@@ -53,10 +53,24 @@ const STATE = Object.freeze({
 });
 
 const TIMERS = Object.freeze({
-    ERASE_DIVS : 2*1000
+    ERASE_DIVS: 2 * 1000
 });
 
 const ACTIVE_TAB_QUERY = Object.freeze({
     active: true,
     currentWindow: true
+});
+
+const ELEMENT_INFO = Object.freeze({
+    COUNT: 'COUNT',
+    DEPTH: 'DEPTH',
+    AVG_TEXT_COUNT: 'AVERAGE_TEXT_COUNT',
+    CLASS_NAME: 'CLASS_NAME',
+    GENERATED_ID: 'GENERATED_ID'
+});
+
+const THRESHOLDS = Object.freeze({
+    COUNT: 5,
+    AVG_TEXT_COUNT: 50,
+    TOP_N: 3
 });
