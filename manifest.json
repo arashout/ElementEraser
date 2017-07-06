@@ -4,7 +4,7 @@
     "name": "Element Eraser",
     "description": "This extension removes elements with a given class name that contain any given search terms",
     "short_name": "Remove unwanted content where-ever you go",
-    "version": "0.0.0.8",
+    "version": "0.0.0.9",
     "author": "Arash Outadi",
 
     "browser_action": {
