@@ -6,7 +6,6 @@ body {
 .container {
     display: flex;
     width: 500px;
-    height: 500px;
     flex-direction: column;
 }
 
@@ -17,6 +16,15 @@ body {
     padding: 0px;
     margin: 0px;
 }
+
+#listClassNames {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 0px;
+    margin: 0px;
+}
+
 .searchTerm{
     padding: 2px;
 }

@@ -14,26 +14,33 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     chrome.tabs.query(ACTIVE_TAB_QUERY, updateURLKey);
 
-    function inputFilterTermHandler(e) {
-        let inputElement = ELEMENTS.INPUT_FILTER_TERM;
+    function inputTermHandler(e, inputElement, ulElement) {
         let text = inputElement.value;
         if (text === '') return;
         if (e.keyCode === KEY_CODES.ENTER || e.keyCode === KEY_CODES.TAB) {
-            addFilterItemFromText(ELEMENTS.UNORDERED_LIST_FILTER_TERMS, text);
+            addItemFromText(ulElement, text);
             inputElement.value = '';
         }
         else if (e.type === EVENTS.INPUT) {
             if (text.endsWith(',')) {
                 text = text.replace(/,/g, '');
                 if (text.length !== 0) {
-                    addFilterItemFromText(ELEMENTS.UNORDERED_LIST_FILTER_TERMS, text);
+                    addItemFromText(ulElement, text);
                     inputElement.value = '';
                 } else inputElement.value = ''; // User enters "," without anything else
             }
         }
     }
     [EVENTS.KEY_DOWN, EVENTS.INPUT].forEach(function (event) {
-        ELEMENTS.INPUT_FILTER_TERM.addEventListener(event, function (e) { inputFilterTermHandler(e) });
+        ELEMENTS.INPUT_FILTER_TERM.addEventListener(event, function (e) { 
+            inputTermHandler(e, ELEMENTS.INPUT_FILTER_TERM, ELEMENTS.UNORDERED_LIST_FILTER_TERMS) 
+        });
+    });
+
+    [EVENTS.KEY_DOWN, EVENTS.INPUT].forEach(function (event) {
+        ELEMENTS.INPUT_CONTAINER_CLASS_NAME.addEventListener(event, function (e) { 
+            inputTermHandler(e, ELEMENTS.INPUT_CONTAINER_CLASS_NAME, ELEMENTS.UNORDERED_LIST_CLASS_NAMES);
+        });
     });
 
     function eraseUsingDict(tabs) {
@@ -154,13 +161,13 @@ function prepopulateEraseFields(eraseObj) {
     if (eraseObj) {
         const arrFilterTerms = eraseObj[ERASE_KEYS.FILTER_TERMS];
         for (let i = 0; i < arrFilterTerms.length; i++) {
-            addFilterItemFromText(ELEMENTS.UNORDERED_LIST_FILTER_TERMS, arrFilterTerms[i]);
+            addItemFromText(ELEMENTS.UNORDERED_LIST_FILTER_TERMS, arrFilterTerms[i]);
         }
         ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = eraseObj[ERASE_KEYS.CLASS_NAMES];
     }
 }
 
-function addFilterItemFromText(ul, text) {
+function addItemFromText(ul, text) {
     // First check if term already exists in UL
     if (ul.outerText.split('\n').includes(text)) {
         return;

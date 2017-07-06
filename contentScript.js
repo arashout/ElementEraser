@@ -16,9 +16,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         });
     }
 });
+
 document.addEventListener("DOMContentLoaded", function () {
     let msg = {
-        [MSG_KEYS.NAME]: MSG.CHANGES_DETECTED,
+        [MSG_KEYS.NAME]: MSG.DOM_LOADED,
         [MSG_KEYS.CURRENT_URL]: getBaseUrl()
     };
 

@@ -33,7 +33,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     else if (message[MSG_KEYS.NAME] === MSG.GET_STATE) {
         sendResponse({ [RESPONSE_KEYS.CURRENT_STATE]: state });
     }
-    else if (message[MSG_KEYS.NAME] === MSG.CHANGES_DETECTED) {
+    else if (message[MSG_KEYS.NAME] === MSG.DOM_LOADED) {
         currentURLKey = message[MSG_KEYS.CURRENT_URL];
         if (state === STATE.ON) {
             chrome.storage.sync.get(urlKey, function (result) {

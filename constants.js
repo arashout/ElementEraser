@@ -6,7 +6,7 @@ const MSG = Object.freeze({
     PREDICT_CLASS: 'MSG_PREDICT_CLASS',
     TOGGLE_STATE: 'MSG_TOGGLE_STATE',
     GET_STATE: 'MSG_GET_STATE',
-    CHANGES_DETECTED: 'MSG_CHANGES_DETECTED'
+    DOM_LOADED: 'MSG_DOM_LOADED'
 });
 const MSG_KEYS = Object.freeze({
     NAME: 'MSG_NAME',
@@ -24,9 +24,10 @@ const ERASE_KEYS = Object.freeze({
     CLASS_NAMES: 'ERASE_CLASS_NAMES'
 });
 const ELEMENTS = Object.freeze({
-    UNORDERED_LIST_FILTER_TERMS: document.getElementById('listFilterTerms'),
     INPUT_FILTER_TERM: document.getElementById('inputFilterTerm'),
+    UNORDERED_LIST_FILTER_TERMS: document.getElementById('listFilterTerms'),
     INPUT_CONTAINER_CLASS_NAME: document.getElementById('inputClassName'),
+    UNORDERED_LIST_CLASS_NAMES: document.getElementById('listClassNames'),
     INPUT_URL_KEY: document.getElementById('inputURLKey'),
     BUTTON_ERASE: document.getElementById('buttonErase'),
     BUTTON_STORE: document.getElementById('buttonStoreData'),
