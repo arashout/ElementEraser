@@ -148,22 +148,28 @@ function retrieveEraseObjContainer(urlKey) {
 }
 
 function createEraseObj() {
-    const nodeListFilterTerms = ELEMENTS.UNORDERED_LIST_FILTER_TERMS.getElementsByTagName("li");
-    const arrFilterTerms = getArrayFromList(nodeListFilterTerms);
+    let nodeListFilterTerms = ELEMENTS.UNORDERED_LIST_FILTER_TERMS.getElementsByTagName('li');
+    let nodeListClassNames = ELEMENTS.UNORDERED_LIST_CLASS_NAMES.getElementsByTagName('li');
+    let arrFilterTerms = getArrayFromList(nodeListFilterTerms);
+    let arrClassNames = getArrayFromList(nodeListClassNames);
 
     return {
         [ERASE_KEYS.FILTER_TERMS]: arrFilterTerms,
-        [ERASE_KEYS.CLASS_NAMES]: ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value
+        [ERASE_KEYS.CLASS_NAMES]: arrClassNames
     }
 }
 
 function prepopulateEraseFields(eraseObj) {
     if (eraseObj) {
-        const arrFilterTerms = eraseObj[ERASE_KEYS.FILTER_TERMS];
+        let arrFilterTerms = eraseObj[ERASE_KEYS.FILTER_TERMS];
+        let arrClassNames = eraseObj[ERASE_KEYS.CLASS_NAMES];
+
         for (let i = 0; i < arrFilterTerms.length; i++) {
             addItemFromText(ELEMENTS.UNORDERED_LIST_FILTER_TERMS, arrFilterTerms[i]);
         }
-        ELEMENTS.INPUT_CONTAINER_CLASS_NAME.value = eraseObj[ERASE_KEYS.CLASS_NAMES];
+        for (let i = 0; i < arrFilterTerms.length; i++) {
+            addItemFromText(ELEMENTS.UNORDERED_LIST_CLASS_NAMES, arrClassNames[i]);
+        }
     }
 }
 
