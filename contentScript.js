@@ -28,12 +28,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-function removeDivs(className, filterTerms) {
-    var elements = document.getElementsByClassName(className);
+function removeDivs(arrClassNames, arrFilterTerms) {
+    let elements = [];
+    for(let i = 0; i < arrClassNames.length; i++){
+        let foundElements = document.getElementsByClassName(arrClassNames[i]);
+        // For some reason 
+        // elements = elements.concat(document.getElementsByClassName(arrClassNames[i]));
+        // Wasn't merging properly
+        for(let j = 0; j < foundElements.length; j++){
+            elements.push(foundElements[j]);
+        }
+    }
+
     for (let i = elements.length - 1; 0 <= i; i--) {
         let element = elements[i];
         let stringContent = element.textContent.toLowerCase();
-        if (filterTerms.some(function (term) { return stringContent.includes(term); })) {
+        if (arrFilterTerms.some(function (term) { return stringContent.includes(term); })) {
             element.remove();
         }
     }
