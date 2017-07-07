@@ -1,4 +1,4 @@
-# DivBeGone
+# Element Eraser
 Element Eraser is a open-source chrome extension that removes any HTML elements that contain user specified terms. 
 
 Simply specify the "class" attribute of the HTML elements you want to remove, add some search terms and click remove.
